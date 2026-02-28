@@ -21,7 +21,7 @@ function get_kind_from_id(id) {
 	if (id.startsWith("IE")) return "infoelement";
 	if (id.startsWith("UL")) return "upload";
 	if (id.startsWith("IP")) return "ip";
-	console.error(id);
+	console.error("no_kind:", id, new Error().stack);
 	throw "no_kind";
 	return null;
 }
