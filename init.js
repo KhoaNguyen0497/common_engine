@@ -46,8 +46,7 @@ var argon2 = require("argon2");
 var express = require("express"),
 	app = express(),
 	cookieParser = require("cookie-parser"),
-	bodyParser = require("body-parser"),
-	fetch = require("node-fetch");
+	bodyParser = require("body-parser");
 var rawBodySaver = function (req, res, buf, encoding) {
 	if (buf && buf.length) {
 		try {
