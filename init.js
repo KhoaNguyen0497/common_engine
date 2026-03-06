@@ -5,7 +5,10 @@ var Local = (!process.env.GAE_APPLICATION && true) || false;
 var Prod = Project.indexOf("-dev") == -1;
 var Staging = !Local && !Prod;
 var Dev = !Prod;
-var Location = process.env.REGION || ((Dev || (process.env.GAE_APPLICATION && process.env.GAE_APPLICATION.indexOf("e~") != -1)) && "europe-west1") || "us-central1";
+var Location =
+	process.env.REGION ||
+	((Dev || (process.env.GAE_APPLICATION && process.env.GAE_APPLICATION.indexOf("e~") != -1)) && "europe-west1") ||
+	"us-central1";
 
 function reinit_from_options() {
 	Project = options.project_name;
@@ -41,8 +44,6 @@ async function get_domain_common(req) {
 	};
 }
 
-var argon2 = require("argon2");
-
 var express = require("express"),
 	app = express(),
 	cookieParser = require("cookie-parser"),
@@ -59,7 +60,7 @@ var rawBodySaver = function (req, res, buf, encoding) {
 				req.query = JSON.parse(req.rawBody);
 			}
 		} catch (e) {
-			if (Dev) console.warn("#rawBodySaver in init.js:", req.method, req.originalUrl, e);
+			if (Dev && !Staging) console.warn("#rawBodySaver in init.js:", req.method, req.originalUrl, e);
 		}
 	}
 };

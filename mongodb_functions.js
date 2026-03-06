@@ -89,7 +89,7 @@ async function tx(F, A, tries = 1, backoff = INITIAL_BACKOFF) {
 				await session.abortTransaction();
 				await session.endSession();
 				if (ex_reason) return { failed: true, reason: ex_reason };
-				if (e.code === 112) console.warn("#TX WriteConflict:", tx_body);
+				if (e.code === 112) console.log("#TX WriteConflict:", tx_body);
 				else console.log("#TX Transaction error:", e, "\n  callback:", tx_body, "\n  caller:", tx_caller);
 				if (attempt < tries) throw e;
 				return { failed: true, reason: "exception" };

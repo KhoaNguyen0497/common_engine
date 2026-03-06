@@ -23,8 +23,10 @@ function test(a) {
 	console.error("test(): " + a);
 }
 
+var last_method = "x";
+
 function send_json(res, json) {
-	console.log(json);
+	if (res.failed || Dev) console.log(last_method, json);
 	if (res.infs && res.infs.length) json.infs = res.infs;
 	return res.status(200).set("Content-Type", "application/json").send(json).end();
 }
@@ -35,7 +37,8 @@ async function handle_api_call(req, res, next) {
 	var args = { req: req, res: res };
 	res.infs = [];
 	if (req.method == "POST") query = req.body;
-	console.log([method, query]);
+	last_method = method;
+	if (Dev) console.log([method, query]);
 	if (!REF[method])
 		return send_json(res, {
 			failed: true,
@@ -138,6 +141,7 @@ async function handle_api_call(req, res, next) {
 	Object.assign(query, args);
 	try {
 		var result = await REF[method].F(query);
+		// console.log(method, result);
 		return send_json(res, result);
 	} catch (e) {
 		console.error(e);
