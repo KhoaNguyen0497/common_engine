@@ -5,10 +5,7 @@ var Local = (!process.env.GAE_APPLICATION && true) || false;
 var Prod = Project.indexOf("-dev") == -1;
 var Staging = !Local && !Prod;
 var Dev = !Prod;
-var Location =
-	process.env.REGION ||
-	((Dev || (process.env.GAE_APPLICATION && process.env.GAE_APPLICATION.indexOf("e~") != -1)) && "europe-west1") ||
-	"us-central1";
+var Location = process.env.REGION || ((Dev || (process.env.GAE_APPLICATION && process.env.GAE_APPLICATION.indexOf("e~") != -1)) && "europe-west1") || "us-central1";
 
 function reinit_from_options() {
 	Project = options.project_name;
@@ -71,8 +68,17 @@ if (Dev)
 		console.log(req.protocol + "://" + req.get("host") + req.originalUrl);
 		next();
 	});
-if (Dev || 1) app.use(express.static("./", { maxAge: "30d" }));
-if (Dev || 1) app.use(express.static("./common", { maxAge: "30d" }));
+// SECURITY: Static files are served via targeted path-prefix mounts ONLY.
+// NEVER use express.static("./") or express.static("./common") without a mount path —
+// this previously exposed the ENTIRE project directory (including secretsandconfig/keys.js)
+// publicly. All credentials had to be rotated. See git history for the incident.
+// Each project can add more mounts in its own init (e.g. main.js adds /images, /sounds, /docs).
+// When adding new mounts, ALWAYS use a path prefix: app.use("/prefix", express.static(...))
+app.use("/js", express.static("./js", { maxAge: "30d" }));
+app.use("/js", express.static("./common/js", { maxAge: "30d" }));
+app.use("/css", express.static("./css", { maxAge: "30d" }));
+app.use("/css", express.static("./common/css", { maxAge: "30d" }));
+app.use("/images", express.static("./images", { maxAge: "30d" }));
 // no-store for dynamic routes (express.static short-circuits before this for static files)
 app.use(function (req, res, next) {
 	res.set("Cache-Control", "no-store");
@@ -107,8 +113,10 @@ if (Engine == "appengine") {
 }
 
 var nunjucks = require("nunjucks");
-// Configure nunjucks with the project root as base
-// nunjucks.configure([require("path").join(__dirname, "..")], {});
+// SECURITY: nunjucks.render() can READ ANY FILE within the search paths below.
+// The "." path means the entire project root is accessible to template rendering.
+// Any function that passes user input to nunjucks.render() is a path traversal risk —
+// an attacker can use "../" to read secretsandconfig/keys.js or any other file.
 var env = null;
 
 if (Dev || 1)

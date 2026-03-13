@@ -27,6 +27,7 @@ app.get("/admin/renderer", async (req, res, next) => {
 });
 
 app.get("/admin/make/user/admin", async (req, res, next) => {
+	return; // No need to risk it, do it from MongoDB [13/03/26]
 	if (!Local) return res.status(403).send("");
 	var ip = req.socket.remoteAddress;
 	if (ip !== "127.0.0.1" && ip !== "::1" && ip !== "::ffff:127.0.0.1") return res.status(403).send("");

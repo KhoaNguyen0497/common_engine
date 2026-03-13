@@ -5,12 +5,12 @@ function api_call(method, args, r_args) {
 	if (!r_args) r_args = {};
 	if (r_args.disable) r_args.disable.addClass("disable");
 	var P = new deferred();
-	var call_args = { 
-		method: "POST", 
+	var call_args = {
+		method: "POST",
 		dataType: "json",
 		contentType: "application/json; charset=utf-8",
-		url: "/api/" + method, 
-		data: JSON.stringify(args)
+		url: "/api/" + method,
+		data: JSON.stringify(args),
 	};
 	$.ajax(call_args)
 		.done(function (data, textStatus, jqXHR) {
@@ -127,6 +127,9 @@ function m_since(t, ref) {
 }
 function h_since(t, ref) {
 	return ms_since(t, ref) / 3600000.0;
+}
+function d_since(t, ref) {
+	return ms_since(t, ref) / 86400000.0;
 }
 
 function html_escape(html) {
